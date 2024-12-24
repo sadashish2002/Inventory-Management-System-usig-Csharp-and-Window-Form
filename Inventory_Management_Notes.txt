@@ -1,0 +1,935 @@
+---------------------------------------------------------------------------------------------------------------------------------------------
+                            Form1.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace InventoryManagement
+{
+    public partial class Login : Form
+    {
+        public Login()
+        {
+            InitializeComponent();
+        }
+
+
+        private void label2_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text)) { 
+                MessageBox.Show("Please enter all fields.","Validation Error",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                return;
+
+            }
+            string correctUsername = "admin";
+            string correctPassword = "1234";
+
+            if (textBox1.Text.Equals(correctUsername) && textBox2.Text.Equals(correctPassword))
+            {
+                //MessageBox.Show("Login Successful", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Main mn = new Main();
+               mn.Show();
+                
+            }
+            else { 
+                MessageBox.Show("Invalid username or password", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               }
+
+           
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Login_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------------
+                            Main.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Npgsql;
+
+namespace InventoryManagement
+{
+    public partial class Main : Form
+    {
+        public Main()
+        {
+            InitializeComponent();
+        }
+        string vstrConnection = "Server=192.168.123.33;port=5432;user id=postgres;password=!vit123ABC!;database=sadashish_test_db;";
+        NpgsqlConnection vCon;
+        NpgsqlCommand vCmd;
+        
+        private void connection()
+        {
+            vCon = new NpgsqlConnection();
+            vCon.ConnectionString = vstrConnection;
+            if(vCon.State == ConnectionState.Closed)
+            {
+                vCon.Open();
+            }
+           }
+
+
+
+    //public DataTable getdata(string sql)
+    //{
+    //    DataTable dt = new DataTable();
+
+    //    // Use a using statement to manage resources
+    //    using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+    //    {
+    //        vCon.Open(); // Open the connection
+
+    //        using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+    //        {
+               
+    //                using (NpgsqlDataReader dr = vCmd.ExecuteReader())
+    //            {
+    //                // Load the data into the DataTable
+    //                dt.Load(dr);
+    //            }
+    //        }
+    //    }
+
+    //    return dt; // Return the populated DataTable
+    //}
+
+
+    private void label1_Click(object sender, EventArgs e)
+        {
+            connection();
+        }
+
+       
+
+       
+
+        private void productLogin_Click(object sender, EventArgs e)
+        {
+            Product pt = new Product();
+            pt.Show();
+        }
+
+        private void CustomerLogin_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void button5_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+                            Products.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Npgsql;
+
+namespace InventoryManagement
+{
+    public partial class Product : Form
+    {
+        public Product()
+        {
+            InitializeComponent();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+        string vstrConnection = "Server=192.168.123.33;port=5432;user id=postgres;password=!vit123ABC!;database=sadashish_test_db;";
+
+        private void btnInsert_Click(object sender, EventArgs e)
+        {
+            int productid = int.Parse(textBox1.Text);
+            string productname = textBox2.Text;
+            int price = int.Parse(textBox3.Text);
+            string quantity = textBox4.Text;
+
+            string sql = "INSERT INTO products (Productid,productname ,price , quantity) VALUES (@Productid , @productname , @price, @quantity)";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@Productid", productid);
+                    vCmd.Parameters.AddWithValue("@productname", productname);
+                    vCmd.Parameters.AddWithValue("@price", price);
+                    vCmd.Parameters.AddWithValue("@quantity", quantity);
+
+                    try
+                    {
+                        vCmd.ExecuteNonQuery();
+                        MessageBox.Show("Record Inserted Successfully");
+
+                    }
+                    catch (Exception ex) {
+                        MessageBox.Show("Duplicate ID's insertion are not allowed");
+                    }
+
+
+                }
+
+            }
+            ProductLoad();
+        }
+
+        private void Product_Load(object sender, EventArgs e)
+        {
+           ProductLoad();
+        }
+
+        private void ProductLoad()
+        {
+            string sql = "SELECT * from Products";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open();
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(vCmd))
+                    {
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+                        dataGridView1.DataSource = dataTable;
+                    }
+                }
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            int productid = int.Parse(textBox1.Text);
+            string productname = textBox2.Text;
+            int price = int.Parse(textBox3.Text);
+            string quantity = textBox4.Text;
+
+            string sql = "UPDATE Products SET productname=@productname, price=@price, quantity=@quantity WHERE  Productid=@Productid";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@Productid", productid);
+                    vCmd.Parameters.AddWithValue("@productname", productname);
+                    vCmd.Parameters.AddWithValue("@price", price);
+                    vCmd.Parameters.AddWithValue("@quantity", quantity);
+                    vCmd.ExecuteNonQuery();
+                }
+
+            }
+            MessageBox.Show("Record Updated Successfully");
+            ProductLoad();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            int productid = int.Parse(textBox1.Text);
+
+
+            string sql = "DELETE FROM Products WHERE ProductId=@ProductId";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@Productid", productid);
+                    
+                    vCmd.ExecuteNonQuery();
+                }
+
+            }
+            MessageBox.Show("Record Deleted Successfully");
+            ProductLoad();
+        }
+    }
+  
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+                                                 Customer.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Npgsql;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
+namespace InventoryManagement
+{
+    public partial class Customer : Form
+    {
+        public Customer()
+        {
+            InitializeComponent();
+        }
+        string vstrConnection = "Server=192.168.123.33;port=5432;user id=postgres;password=!vit123ABC!;database=sadashish_test_db;";
+
+        private void btnInsert_Click(object sender, EventArgs e)
+        {
+            int customerid = int.Parse(textBox1.Text);
+            string customername = textBox2.Text;
+            string contact = textBox3.Text;
+           
+
+            string sql = "INSERT INTO Customers (customerid,customername,contact) VALUES (@customerid , @customername , @contact)";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@customerid", customerid);
+                    vCmd.Parameters.AddWithValue("@customername", customername);
+                    vCmd.Parameters.AddWithValue("@contact", contact);
+
+                    try
+                    {
+                        vCmd.ExecuteNonQuery();
+                        MessageBox.Show("Record Inserted Successfully");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Duplicate ID's insertion are not allowed");
+                    }
+
+
+                }
+
+            }
+            Customer_Load();
+        }
+
+        private void Customer_Load(object sender, EventArgs e)
+        {
+            Customer_Load();
+        }
+        private void Customer_Load()
+        {
+            string sql = "SELECT * from Customers";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open();
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(vCmd))
+                    {
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+                        dataGridView1.DataSource = dataTable;
+                    }
+                }
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+
+            int customerid = int.Parse(textBox1.Text);
+            string customername = textBox2.Text;
+            string contact = textBox3.Text;
+
+
+            string sql = "UPDATE Customers SET customername=@customername,contact=@contact WHERE customerid=@customerid";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@customerid", customerid);
+                    vCmd.Parameters.AddWithValue("@customername", customername);
+                    vCmd.Parameters.AddWithValue("@contact", contact);
+                    vCmd.ExecuteNonQuery();
+                }
+
+            }
+            MessageBox.Show("Record Updated Successfully");
+            Customer_Load();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+
+            int customerid = int.Parse(textBox1.Text);
+            string customername = textBox2.Text;
+            string contact = textBox3.Text;
+
+
+            string sql = "DELETE FROM Customers WHERE customerid=@customerid";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@customerid", customerid);
+                    vCmd.ExecuteNonQuery();
+                }
+
+            }
+            MessageBox.Show("Record Deleted Successfully");
+            Customer_Load();
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+                                                 Order.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Npgsql;
+
+namespace InventoryManagement
+{
+    public partial class Order : Form
+    {
+        public Order()
+        {
+            InitializeComponent();
+        }
+
+        
+        string vstrConnection = "Server=192.168.123.33;port=5432;user id=postgres;password=!vit123ABC!;database=sadashish_test_db;";
+
+        private void btnInsert_Click(object sender, EventArgs e)
+        {
+            int orderid = int.Parse(textBox1.Text); 
+            int productid = int.Parse(textBox2.Text);
+            int customerid = int.Parse(textBox3.Text);
+            int quantity = int.Parse(textBox4.Text);
+            string orderdate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+
+            string sql = "INSERT INTO Orders (orderid,productid ,customerid , quantity,orderdate) VALUES (@orderid , @productid , @customerid, @quantity,@orderdate)";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@orderid", orderid);
+                    vCmd.Parameters.AddWithValue("@productid", productid);
+                    vCmd.Parameters.AddWithValue("@customerid", customerid);
+                    vCmd.Parameters.AddWithValue("@quantity", quantity);
+                    vCmd.Parameters.AddWithValue("@orderdate", dateTimePicker1.Value);
+
+                    try
+                    {
+                        vCmd.ExecuteNonQuery();
+                        MessageBox.Show("Record Inserted Successfully");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Duplicate ID's insertion are not allowed");
+                    }
+
+
+                }
+
+            }
+            OrderLoad();
+        }
+        private void Order_Load(object sender, EventArgs e)
+        {
+            OrderLoad();
+        }
+         private void OrderLoad()
+        {
+            string sql = "SELECT * from Orders";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open();
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(vCmd))
+                    {
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+                        dataGridView1.DataSource = dataTable;
+                    }
+                }
+            }
+        }
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            int orderid = int.Parse(textBox1.Text);
+            int productid = int.Parse(textBox2.Text);
+            int customerid = int.Parse(textBox3.Text);
+            int quantity = int.Parse(textBox4.Text);
+            string orderdate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+
+            string sql = "UPDATE Orders SET orderid=@orderid,productid=@productid ,customerid=@customerid , quantity=@quantity, orderdate=@orderdate";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@orderid", orderid);
+                    vCmd.Parameters.AddWithValue("@productid", productid);
+                    vCmd.Parameters.AddWithValue("@customerid", customerid);
+                    vCmd.Parameters.AddWithValue("@quantity", quantity);
+                    vCmd.Parameters.AddWithValue("@orderdate", dateTimePicker1.Value);
+                    try
+                    {
+                        vCmd.ExecuteNonQuery();
+                        MessageBox.Show("Record Updated Successfully");
+
+                    }
+                    catch (Exception ex) { 
+                          MessageBox.Show("Duplicate Order id do not allowed");
+                    }
+
+
+                 }
+            }
+            OrderLoad();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+
+            int orderid = int.Parse(textBox1.Text);
+          
+
+            string sql = "DELETE FROM Orders WHERE orderid=@orderid";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@orderid", orderid);
+                    vCmd.ExecuteNonQuery();
+
+                }
+            }
+            MessageBox.Show("Record Deleted Successfully");
+            OrderLoad();
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+                                                 Inventory.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Npgsql;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
+namespace InventoryManagement
+{
+    public partial class Inventory : Form
+    {
+        public Inventory()
+        {
+            InitializeComponent();
+        }
+        string vstrConnection = "Server=192.168.123.33;port=5432;user id=postgres;password=!vit123ABC!;database=sadashish_test_db;";
+
+        private void btnInsert_Click(object sender, EventArgs e)
+        {
+
+            int id = int.Parse(textBox1.Text);
+            int productid = int.Parse(textBox2.Text);
+            int quantity = int.Parse(textBox3.Text);
+           
+
+            string sql = "INSERT INTO Inventory (id,productid ,quantity) VALUES (@id , @productid , @quantity)";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@id", id);
+                    vCmd.Parameters.AddWithValue("@productid", productid);
+                    vCmd.Parameters.AddWithValue("@quantity", quantity);
+
+                    try
+                    {
+                        vCmd.ExecuteNonQuery();
+                        MessageBox.Show("Record Inserted Successfully");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Duplicate ID's insertion are not allowed");
+                    }
+
+
+                }
+
+            }
+            InventoryLoad();
+        }
+
+        private void Inventory_Load(object sender, EventArgs e)
+        {
+            InventoryLoad();
+        }
+
+        private void InventoryLoad() {
+
+            string sql = "SELECT * from Inventory";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open();
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(vCmd))
+                    {
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+                        dataGridView1.DataSource = dataTable;
+                    }
+                }
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(textBox1.Text);
+            int productid = int.Parse(textBox2.Text);
+            int quantity = int.Parse(textBox3.Text);
+
+
+            string sql = "UPDATE Inventory SET productid=@productid ,quantity=@quantity WHERE id=@id";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@id", id);
+                    vCmd.Parameters.AddWithValue("@productid", productid);
+                    vCmd.Parameters.AddWithValue("@quantity", quantity);
+                    vCmd.ExecuteNonQuery();
+
+                }
+
+            }
+            MessageBox.Show("Record Updated Successfully");
+            InventoryLoad();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(textBox1.Text);
+            
+
+
+            string sql = "DELETE FROM Inventory WHERE id=@id";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@id", id);
+                    vCmd.ExecuteNonQuery();
+
+                }
+
+            }
+            MessageBox.Show("Record Deleted Successfully");
+            InventoryLoad();
+        }
+    }
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+                                                 Supplier.cs
+---------------------------------------------------------------------------------------------------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Npgsql;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
+namespace InventoryManagement
+{
+    public partial class Supplier : Form
+    {
+        public Supplier()
+        {
+            InitializeComponent();
+        }
+        string vstrConnection = "Server=192.168.123.33;port=5432;user id=postgres;password=!vit123ABC!;database=sadashish_test_db;";
+
+        private void btnInsert_Click(object sender, EventArgs e)
+        {
+            int sid = int.Parse(textBox1.Text);
+            string name = textBox2.Text;
+            string contact = textBox3.Text;
+
+            string sql = "INSERT INTO Supplier (sid,name ,contact) VALUES (@sid , @name , @contact)";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@sid", sid);
+                    vCmd.Parameters.AddWithValue("@name", name);
+                    vCmd.Parameters.AddWithValue("@contact", contact);
+
+                    try
+                    {
+                        vCmd.ExecuteNonQuery();
+                        MessageBox.Show("Record Inserted Successfully");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Duplicate ID's insertion are not allowed");
+                    }
+
+
+                }
+
+            }
+            SupplierLoad();
+        }
+
+        private void Supplier_Load(object sender, EventArgs e)
+        {
+            SupplierLoad();
+        }
+
+        private void SupplierLoad()
+        {
+            string sql = "SELECT * from Supplier";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open();
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(vCmd))
+                    {
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+                        dataGridView1.DataSource = dataTable;
+                    }
+                }
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            int sid = int.Parse(textBox1.Text);
+            string name = textBox2.Text;
+            string contact = textBox3.Text;
+
+            string sql = "UPDATE Supplier SET name=@name ,contact=@contact WHERE sid=@sid";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@sid", sid);
+                    vCmd.Parameters.AddWithValue("@name", name);
+                    vCmd.Parameters.AddWithValue("@contact", contact);
+                    vCmd.ExecuteNonQuery();
+                }
+
+            }
+            MessageBox.Show("Record Updated Successfully");
+            SupplierLoad();
+
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            int sid = int.Parse(textBox1.Text);
+            
+
+            string sql = "DELETE FROM Supplier WHERE sid=@sid";
+            using (NpgsqlConnection vCon = new NpgsqlConnection(vstrConnection))
+            {
+                vCon.Open(); // Open the connection
+
+                using (NpgsqlCommand vCmd = new NpgsqlCommand(sql, vCon))
+                {
+                    vCmd.Parameters.AddWithValue("@sid", sid);
+                    vCmd.ExecuteNonQuery();
+                }
+
+            }
+            MessageBox.Show("Record Updated Successfully");
+            SupplierLoad();
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+                                                 Database Query
+---------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE Products(
+  productid int NOT NULL,
+  productname varchar(50) NOT NULL,
+  price int,
+  quantity varchar(50),
+  PRIMARY key(productid)
+);
+
+CREATE TABLE Customers(
+  customerid int NOT NULL,
+  customername varchar(50) NOT NULL,
+  contact varchar(50),
+  PRIMARY key(customerid)
+);
+
+create table Orders(
+ orderid int not null,
+ productid int ,
+ customerid int,
+ quantity int,
+ orderdate date,
+ PRIMARY key(orderid)
+);
+
+create table Inventory(
+id int not null,
+productid int,
+quantity int,
+primary key (id)
+);
+
+create table Supplier(
+sid int not null,
+name varchar(50) not null,
+contact varchar(50),
+primary key(sid)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
